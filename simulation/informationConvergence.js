@@ -1,10 +1,3 @@
-
-document.addEventListener('DOMContentLoaded', function() {
-  chrome.storage.local.get(['key'], function(result) {
-      console.log('Value currently is ' + result.key);
-  });
-});
-
 //학번 추출해서 전역변수로 만드는 함수
 function getHakbunFromURL() {
   const urlParams = new URLSearchParams(window.location.search);
@@ -12,21 +5,31 @@ function getHakbunFromURL() {
   return urlParams.get('hakbun');
 }
 
+// 정보융합학부 졸업 요건 json에서 졸업학점, 전체 학점 불러오기
 let majorCredits, totalCredits;
-document.addEventListener("DOMContentLoaded", function() {
-  fetch('../data/informationConvergence.json')
-      .then(response => response.json())
-      .then(jsonData => {
-          // 여기서 변수를 직접 할당하지 말고, 필요한 값을 직접 추출
-          majorCredits = jsonData["졸업학점"]["전공학점"];
-          totalCredits = jsonData["졸업학점"]["전체학점"];
 
-           // 데이터 로딩 후 필요한 처리를 진행하거나 다른 함수 호출
-           console.log("Loaded credits:", majorCredits, totalCredits);
-      })
-      .catch(error => {
-          console.error('Error fetching data:', error);
-      });
+document.addEventListener("DOMContentLoaded", function() {
+    // 정보융합학부 졸업 요건 데이터 먼저 로드
+    fetch('../data/informationConvergence.json')
+        .then(response => response.json())
+        .then(jsonData => {
+            majorCredits = jsonData["졸업학점"]["전공학점"];
+            totalCredits = jsonData["졸업학점"]["전체학점"];
+            console.log("Loaded infoconv.json:", majorCredits, totalCredits);
+
+            // 졸업 요건 로드 완료 후 현재 학점 정보 로드
+            chrome.storage.local.get(['currentScores'], function(result) {
+                if (result.currentScores) {
+                    console.log("저장된 데이터:", result.currentScores);
+                    checkScoreTable(result.currentScores);
+                } else {
+                    console.error("저장된 데이터가 없습니다.");
+                }
+            });
+        })
+        .catch(error => {
+            console.error('Error fetching graduation requirement data:', error);
+        });
 });
 
 //전공,교양 학점 현재 score 확인
@@ -65,9 +68,8 @@ function checkScoreTable(data) {
     const tbody = document.createElement('tbody');
     table.appendChild(tbody);
   
-  
+    console.log("함수 안에서 global 변수 값 확인 : ", majorCredits, totalCredits);
       // 데이터 배열
-      // const rowData = [data.majorChidukHakjum+'/60', data.chidukHakjum+'/133']; // 데이터를 빈칸으로 채웁니다.
       const rowData = [
         `${data.majorChidukHakjum}/${majorCredits}`, 
         `${data.chidukHakjum}/${totalCredits}`
@@ -87,28 +89,9 @@ function checkScoreTable(data) {
     // 문서의 body에 테이블 삽입
     document.body.insertBefore(table, textDiv.nextSibling);
   }
+
   
-  
-  // 취득 학점 불러오기
-  fetch('https://klas.kw.ac.kr/std/cps/inqire/AtnlcScreSungjukTot.do', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({})
-  })
-    .then(response => response.json())
-    .then(jsonData => {
-      // gyoyangTable 함수 호출하여 테이블 업데이트
-      checkScoreTable(jsonData);
-    })
-    .catch(error => {
-      console.error('Error fetching data:', error);
-    });
-  
-  
-  
-  
+     
   //기초교양 테이블 재생성하여 배치
   function gyoyangTable(data) {
     
@@ -366,7 +349,6 @@ function checkScoreTable(data) {
             hakjungNoList.push(thirdPart);
           });
       });
-      console.log(hakjungNoList);
       return hakjungNoList;
   }
   
@@ -394,7 +376,6 @@ function checkScoreTable(data) {
             createAndInsertTable();
         })
         .catch(error => {
-            console.error('Error fetching data:', error);
         });
       
     
@@ -414,7 +395,6 @@ function checkScoreTable(data) {
             createAndInsertTable();
         })
         .catch(error => {
-            console.error('Error fetching data:', error);
         });
       })
   
@@ -428,14 +408,11 @@ function checkScoreTable(data) {
   })
     .then(response => response.json())
     .then(jsonData => {
-      console.log(jsonData);
       // gyoyangTable 함수 호출하여 테이블 업데이트
       const completedCourses = extractCompletedCourses(jsonData);
-      console.log(completedCourses);
       createAndInsertTable(completedCourses, gipilData);
       createAndInsertTable(completedCourses, geanpilData);
     })
     .catch(error => {
       console.error('Error fetching data:', error);
     });
-  
