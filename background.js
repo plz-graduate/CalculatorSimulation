@@ -6,33 +6,33 @@ function fetchData() {
     },
     body: JSON.stringify({})
   })
-  .then(response => response.json())
-  .then(data => {
-    // 데이터를 chrome.storage에 저장
-    chrome.storage.local.set({currentScores: data}, () => {
+    .then(response => response.json())
+    .then(data => {
+      // 데이터를 chrome.storage에 저장
+      chrome.storage.local.set({ currentScores: data }, () => {
+      });
+    })
+    .catch(error => {
+      console.error('취득 학점 정보를 가져오는데 실패하였습니다:', error);
     });
-  })
-  .catch(error => {
-    console.error('취득 학점 정보를 가져오는데 실패하였습니다:', error);
-  });
 
   fetch('https://klas.kw.ac.kr/std/cps/inqire/AtnlcScreSungjukInfo.do', {
-  method: 'POST',
+    method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({})
   })
-  .then(response => response.json())
-  .then(data => {
-    // 데이터를 chrome.storage에 저장
-    chrome.storage.local.set({ SungjukInfo: data }, (    ) => {
+    .then(response => response.json())
+    .then(data => {
+      // 데이터를 chrome.storage에 저장
+      chrome.storage.local.set({ SungjukInfo: data }, () => {
+      });
+      console.log("성적Info : ", data);
+    })
+    .catch(error => {
+      console.error('성적 정보를 가져오는데 실패하였습니다:', error);
     });
-    console.log("성적Info : ", data);
-  })
-  .catch(error => {
-    console.error('성적 정보를 가져오는데 실패하였습니다:', error);
-  });
 
   fetch('https://klas.kw.ac.kr/std/cps/inqire/AtnlcScreHakjukInfo.do', {
     method: 'POST',
@@ -41,18 +41,35 @@ function fetchData() {
     },
     body: JSON.stringify({})
   })
-  .then(response => response.json())
-  .then(data => {
-    // 데이터를 chrome.storage에 저장
-    chrome.storage.local.set({ HakjukInfo: data }, (    ) => {
+    .then(response => response.json())
+    .then(data => {
+      // 데이터를 chrome.storage에 저장
+      chrome.storage.local.set({ HakjukInfo: data }, () => {
+      });
+      console.log("HakjukInfo : ", data);
+    })
+    .catch(error => {
+      console.error('학적 정보를 가져오는데 실패하였습니다:', error);
     });
-    console.log("HakjukInfo : ", data);
-  })
-  .catch(error => {
-    console.error('학적 정보를 가져오는데 실패하였습니다:', error);
-  });
-}
 
+  fetch('https://klas.kw.ac.kr/std/cps/inqire/AtnlcScreSungjukTot.do', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  })
+    .then(response => response.json())
+    .then(data => {
+      // 데이터를 chrome.storage에 저장
+      chrome.storage.local.set({ SungjukTotal: data }, () => {
+      });
+      console.log("SungjukTotal : ", data);
+    })
+    .catch(error => {
+      console.error('성적 평량평균 정보를 가져오는데 실패하였습니다:', error);
+    });
+
+}
   
 
 // background.js
