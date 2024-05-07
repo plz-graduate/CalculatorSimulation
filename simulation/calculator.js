@@ -4,6 +4,8 @@ document.addEventListener("DOMContentLoaded", function () {
         makingHakjukTable(result.HakjukInfo);
     });
     chrome.storage.local.get(['SungjukInfo'], function (result) {
+        console.log(result.SungjukTotal);  // 여기서 로그를 찍어 데이터 확인
+
         makingSungjukTable(result.SungjukInfo);
         collectGradesAndCredits();
     });
@@ -204,23 +206,27 @@ function makingSungjukTable(dataArray) {
         const tbody = document.createElement('tbody');
         data.sungjukList.forEach(course => {
             const row = document.createElement('tr');
-            const retryArray = ['C+', 'C0', 'D+', 'D0'];
+            const retryArray = ['C+', 'C0', 'D+', 'D0', 'F'];
             let retakeMarkup = course.retakeOpt === 'Y' ? '<span style="color: red;">재수강</span>' : '';
+            const trimGrade = course.getGrade.trim(); // 성적에서 공백 제거
+
+            console.log(course.getGrade, retryArray.includes(course.getGrade));
+
             row.innerHTML = `
                 <td style="text-align: center;">${course.hakjungNo}</td>
                 <td style="text-align: center;">${course.gwamokKname}</td>
                 <td style="text-align: center;">${course.hakgwa}</td>
                 <td style="text-align: center;">${course.codeName1}</td>
                 <td style="text-align: center;">${course.hakjumNum}</td>
-                <td style="text-align: center;" class="${retryArray.includes(course.getGrade) ? 'editable' : ''}">${course.getGrade}</td>
+                <td style="text-align: center;" class="${retryArray.includes(trimGrade) ? 'editable' : ''}">${trimGrade}</td>
                 <td style="text-align: center;">${course.certname || ''}</td>
                 <td style="text-align: center;">${retakeMarkup}</td>
                 <td style="text-align: center;">${course.termFinish === 'Y' ? '' : ''}</td>
             `;
             row.style.height = '30px'; //셀 높이
             row.style.border = '1px solid #ddd';
-            if (retryArray.includes(course.getGrade)) {
-                row.style.backgroundColor = '#F5BCA9';
+            if (retryArray.includes(trimGrade)) {
+                row.style.backgroundColor = '#F5BCA9'; // 여기서 색 변경
             }
             tbody.appendChild(row);
         });
@@ -236,6 +242,7 @@ function makingSungjukTable(dataArray) {
             }
         });
     });
+    
 
     function createDropdown(cell) {
         const existingDropdown = cell.querySelector('select');
@@ -342,11 +349,32 @@ function displaySungjuk(data) {
     containerSimul.style.width = '40%';
     containerSimul.style.float = 'right';
     containerSimul.style.marginTop = '20px';
+    containerSimul.style.display = 'flex';
+    containerSimul.style.flexDirection = 'column'; // 컨테이너를 세로로 쌓기
 
+    // 제목과 버튼을 포함할 컨테이너
+    const headerContainer = document.createElement('div');
+    headerContainer.style.display = 'flex';
+    headerContainer.style.alignItems = 'center'; // 세로 중앙 정렬
+    headerContainer.style.width = '100%';
+
+    // 제목 추가
     const textDivSimul = document.createElement('h2');
     textDivSimul.textContent = '예상 성적'; 
     containerSimul.appendChild(textDivSimul);
 
+
+    // 계산하기 버튼 추가
+    const calculateButton = document.createElement('button');
+    calculateButton.textContent = '계산하기';
+    calculateButton.style.padding = '5px 10px'; // 버튼 패딩 조정
+    calculateButton.style.marginLeft = '20px'; // 버튼과 제목 사이의 간격
+    headerContainer.appendChild(calculateButton);
+
+    containerSimul.appendChild(headerContainer);
+
+
+    // 성적 테이블 생성
     const tableSimul = document.createElement('table');
     tableSimul.className = 'sungjuckinfo';
     tableSimul.style.width = '90%';
@@ -356,6 +384,7 @@ function displaySungjuk(data) {
     tableSimul.style.wordBreak = 'break-all';
     tableSimul.style.textOverflow = 'clip';
 
+    // 열 그룹 설정
     const colgroupSimul = document.createElement('colgroup');
     const colWidthsSimul = ['25%', '25%', '25%', '25%'];
     colWidthsSimul.forEach(width => {
@@ -365,6 +394,7 @@ function displaySungjuk(data) {
     });
     tableSimul.appendChild(colgroupSimul);
 
+    // 테이블 헤더 생성
     const theadSimul = document.createElement('thead');
     const headerRowSimul = document.createElement('tr');
     headerRowSimul.innerHTML = `<th colspan="2">학적부 기준</th><th colspan="2">성적표 기준</th>`;
@@ -381,6 +411,7 @@ function displaySungjuk(data) {
     theadSimul.appendChild(subHeaderRowSimul);
     tableSimul.appendChild(theadSimul);
 
+    // 테이블 바디 생성
     const tbodySimul = document.createElement('tbody');
     const bodyRow = document.createElement('tr');
     bodyRow.innerHTML = `<td>-</td><td>-</td><td>-</td><td>-</td>`;
@@ -396,4 +427,19 @@ function displaySungjuk(data) {
     var secondChild = document.body.childNodes[1]; 
     document.body.insertBefore(SungjuckTables, secondChild.nextSibling);
 
+
+
+    // 버튼 클릭 이벤트 핸들러 설정
+    calculateButton.addEventListener('click', function () {
+        
+    });
+
+    
+
+
+
+    
+    
 }
+
+
