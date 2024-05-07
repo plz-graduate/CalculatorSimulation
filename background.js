@@ -1,4 +1,5 @@
 function fetchData() {
+  // POST 요청1 - AtnlcScreSungjukTot 
   fetch('https://klas.kw.ac.kr/std/cps/inqire/AtnlcScreSungjukTot.do', {
     method: 'POST',
     headers: {
@@ -9,13 +10,15 @@ function fetchData() {
     .then(response => response.json())
     .then(data => {
       // 데이터를 chrome.storage에 저장
-      chrome.storage.local.set({ currentScores: data }, () => {
+      chrome.storage.local.set({ AtnlcScreSungjukTot: data }, () => {
       });
+      console.log("background - AtnlcScreSungjukTot : ", data);
     })
     .catch(error => {
       console.error('취득 학점 정보를 가져오는데 실패하였습니다:', error);
     });
 
+  //POST 요청2 - AtnlcScreSungjukInfo
   fetch('https://klas.kw.ac.kr/std/cps/inqire/AtnlcScreSungjukInfo.do', {
     method: 'POST',
     headers: {
@@ -26,14 +29,15 @@ function fetchData() {
     .then(response => response.json())
     .then(data => {
       // 데이터를 chrome.storage에 저장
-      chrome.storage.local.set({ SungjukInfo: data }, () => {
+      chrome.storage.local.set({ AtnlcScreSungjukInfo: data }, () => {
       });
-      console.log("성적Info : ", data);
+      console.log("background - AtnlcScreSungjukInfo : ", data);
     })
     .catch(error => {
       console.error('성적 정보를 가져오는데 실패하였습니다:', error);
     });
-
+  
+  //POST 요청3 - AtnlcScreHakjukInfo
   fetch('https://klas.kw.ac.kr/std/cps/inqire/AtnlcScreHakjukInfo.do', {
     method: 'POST',
     headers: {
@@ -44,30 +48,33 @@ function fetchData() {
     .then(response => response.json())
     .then(data => {
       // 데이터를 chrome.storage에 저장
-      chrome.storage.local.set({ HakjukInfo: data }, () => {
+      chrome.storage.local.set({ AtnlcScreHakjukInfo: data }, () => {
       });
-      console.log("HakjukInfo : ", data);
+      console.log("background - AtnlcScreHakjukInfo : ", data);
     })
     .catch(error => {
       console.error('학적 정보를 가져오는데 실패하였습니다:', error);
     });
 
-  fetch('https://klas.kw.ac.kr/std/cps/inqire/AtnlcScreSungjukTot.do', {
+  // POST 요청4 - GyoyangIsuInfo
+  fetch('https://klas.kw.ac.kr/std/cps/inqire/GyoyangIsuInfo.do', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
+    body: JSON.stringify({})
   })
-    .then(response => response.json())
-    .then(data => {
-      // 데이터를 chrome.storage에 저장
-      chrome.storage.local.set({ SungjukTotal: data }, () => {
-      });
-      console.log("SungjukTotal : ", data);
-    })
-    .catch(error => {
-      console.error('성적 평량평균 정보를 가져오는데 실패하였습니다:', error);
+  .then(response => response.json())
+  .then(data => {
+    
+      chrome.storage.local.set({GyoyangIsuInfo: data }, () => {
     });
+    console.log("background - GyoyangIsuInfo : ", data);
+  })
+  .catch(error => {
+    console.error('Error fetching data:', error);
+  });  
+
 
 }
   
